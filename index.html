@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boostify - Facebook Reaction Booster</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        #mainApp {
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+        #prankSection {
+            max-height: 100vh;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .animate-shake {
+            animation: shake 0.8s ease-in-out;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.05; }
+            50% { opacity: 0.1; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
+        }
+        #mainApp::-webkit-scrollbar {
+            width: 6px;
+        }
+        #mainApp::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #mainApp::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+        #mainApp::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #5a6fd8, #6a4190);
+        }
+        .menu-button {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .tab-content, .section-content {
+            display: none;
+        }
+        .tab-content.active, .section-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-enter {
+            animation: dropdownEnter 0.2s ease-out;
+        }
+        @keyframes dropdownEnter {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .menu-dropdown {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+        }
+        .separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+            margin: 16px 0;
+        }
+        .separator::before,
+        .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .separator::before {
+            margin-right: 10px;
+        }
+        .separator::after {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute w-96 h-96 bg-white rounded-full -top-48 -left-48 animate-pulse-slow"></div>
+        <div class="absolute w-96 h-96 bg-white rounded-full -bottom-48 -right-48 animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+    </div>
+    
+    <div id="mainApp" class="max-w-md w-full bg-white rounded-2xl shadow-2xl relative z-10 backdrop-blur-sm border border-gray-100">
+        <header class="text-center p-6 border-b border-gray-100">
+            <div class="flex items-center justify-between mb-4 relative">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg mr-3">
+                        <i class="fab fa-facebook text-xl text-white"></i>
+                    </div>
+                    <div class="text-left">
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Boostify</h1>
+                        <p class="text-sm text-gray-500 font-medium">Facebook Tools</p>
+                    </div>
+                </div>
+                <div>
+                    <button id="menuButton" class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform duration-300 cursor-pointer menu-button">
+                        <i class="fas fa-bars text-lg text-white"></i>
+                    </button>
+                    <div id="menuDropdown" class="absolute right-0 mt-2 hidden menu-dropdown bg-white rounded-xl shadow-xl border border-gray-200 z-50 dropdown-enter">
+                        <div class="p-2">
+                            <button id="dropdownAutoReact" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 flex items-center transition-colors duration-200">
+                                <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-thumbs-up text-blue-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800">Auto Reaction</div>
+                                    <div class="text-xs text-gray-500">Boost post reactions</div>
+                                </div>
+                            </button>
+                            <button id="dropdownAutoFollower" class="w-full text-left px-4 py-3 rounded-lg hover:bg-green-50 flex items-center transition-colors duration-200 mt-1">
+                                <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-users text-green-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800">Auto Followers</div>
+                                    <div class="text-xs text-gray-500">Gain more followers</div>
+                                </div>
+                            </button>
+                            <button id="dropdownAutoShare" class="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 flex items-center transition-colors duration-200 mt-1">
+                                <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-share-alt text-purple-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800">Auto Share</div>
+                                    <div class="text-xs text-gray-500">Share posts automatically</div>
+                                </div>
+                            </button>
+                            <button id="dropdownCreateAccount" class="w-full text-left px-4 py-3 rounded-lg hover:bg-orange-50 flex items-center transition-colors duration-200 mt-1">
+                                <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-user-plus text-orange-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800">Create FB Account</div>
+                                    <div class="text-xs text-gray-500">Create new account</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="separator"></div>
+            <div class="mb-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+                <div class="flex justify-between items-center gap-4">
+                    <div class="text-left flex-1">
+                        <div class="flex items-center">
+                            <div class="w-7 h-7 rounded-lg bg-white flex items-center justify-center mr-2 shadow-sm">
+                                <i class="fas fa-calendar-day text-blue-600 text-xs"></i>
+                            </div>
+                            <span id="currentDate" class="text-xs font-semibold text-gray-700">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="text-right flex-1">
+                        <div class="flex items-center justify-end">
+                            <span id="currentTime" class="text-xs font-semibold text-gray-700">Loading...</span>
+                            <div class="w-7 h-7 rounded-lg bg-white flex items-center justify-center ml-2 shadow-sm">
+                                <i class="fas fa-clock text-purple-600 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="separator"></div>
+        </header>
+        <main class="p-6">
+            <div id="autoReactContent" class="tab-content active">
+                <div class="space-y-4">
+                    <div>
+                        <label for="postUrl" class="block text-sm font-bold text-gray-800 mb-2">
+                            Enter your Facebook post URL:
+                        </label>
+                        <div class="relative group">
+                            <input 
+                                type="text" 
+                                id="postUrl" 
+                                placeholder="https://facebook.com/your-post" 
+                                class="w-full p-3 pl-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                            >
+                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
+                                <i class="fab fa-facebook-f text-white text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="text-xs text-gray-500 flex items-center bg-blue-50 p-2 rounded">
+                            <i class="fas fa-info-circle mr-2 text-blue-500"></i> 
+                            <span>Only Facebook URLs are supported</span>
+                        </div>
+                        <div class="text-xs text-green-600 font-bold flex items-center justify-center bg-green-50 p-2 rounded border border-green-200">
+                            <i class="fas fa-bolt mr-2 text-green-500"></i>
+                            <span>30+ reactions per boost!</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator mt-6 mb-6"></div>
+                <div class="space-y-4">
+                    <p class="text-sm font-bold text-gray-800 flex items-center">
+                        <div class="w-6 h-6 rounded-lg bg-red-100 flex items-center justify-center mr-2">
+                            <i class="fas fa-heart text-red-600 text-xs"></i>
+                        </div>
+                        Select reaction type:
+                    </p>
+                    <div class="grid grid-cols-3 gap-2" id="reactionContainer">
+                    </div>
+                    <div class="text-xs text-gray-500 flex items-center bg-purple-50 p-2 rounded">
+                        <i class="fas fa-mouse-pointer mr-2 text-purple-500"></i>
+                        <span>Click to select a reaction</span>
+                    </div>
+                </div>
+            </div>
+            <div id="autoFollowerContent" class="tab-content">
+                <div class="space-y-6">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-users text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Auto Followers</h3>
+                        <p class="text-sm text-gray-600">Gain more followers automatically</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="space-y-3">
+                            <label for="followerUrl" class="block text-sm font-bold text-gray-800 flex items-center">
+                                <div class="w-6 h-6 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+                                    <i class="fas fa-user-plus text-green-600 text-xs"></i>
+                                </div>
+                                Facebook Profile URL to Follow:
+                            </label>
+                            <div class="relative group">
+                                <input 
+                                    type="text" 
+                                    id="followerUrl" 
+                                    placeholder="https://facebook.com/profile-name" 
+                                    class="w-full p-3 pl-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300"
+                                >
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded bg-green-500 flex items-center justify-center">
+                                    <i class="fab fa-facebook-f text-white text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 flex items-center bg-green-50 p-2 rounded">
+                                <i class="fas fa-info-circle mr-2 text-green-500"></i> 
+                                <span>Enter the Facebook profile URL you want to follow</span>
+                            </div>
+                            <div class="text-xs text-green-600 font-bold flex items-center justify-center bg-green-50 p-2 rounded border border-green-200">
+                                <i class="fas fa-bolt mr-2 text-green-500"></i>
+                                <span>50+ followers per boost!</span>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-lightbulb text-green-500 mr-2"></i>
+                                How it works:
+                            </h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                    <span>Enter any Facebook profile URL</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                    <span>Our system will follow the account from multiple profiles</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                    <span>Get 50+ new followers per boost</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="autoShareContent" class="tab-content">
+                <div class="space-y-6">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-share-alt text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Auto Share</h3>
+                        <p class="text-sm text-gray-600">Share posts automatically to increase reach</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <label for="shareUrl" class="block text-sm font-bold text-gray-800 flex items-center">
+                                <div class="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center mr-2">
+                                    <i class="fas fa-link text-purple-600 text-xs"></i>
+                                </div>
+                                Post URL to Share:
+                            </label>
+                            <div class="relative group">
+                                <input 
+                                    type="text" 
+                                    id="shareUrl" 
+                                    placeholder="https://facebook.com/post-to-share" 
+                                    class="w-full p-3 pl-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
+                                >
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded bg-purple-500 flex items-center justify-center">
+                                    <i class="fab fa-facebook-f text-white text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label for="shareAmount" class="block text-sm font-bold text-gray-800 flex items-center">
+                                    <div class="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center mr-2">
+                                        <i class="fas fa-hashtag text-blue-600 text-xs"></i>
+                                    </div>
+                                    Amount:
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="shareAmount" 
+                                    placeholder="1000" 
+                                    min="1"
+                                    max="10000000"
+                                    class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                                >
+                            </div>
+                            <div class="space-y-2">
+                                <label for="shareDelay" class="block text-sm font-bold text-gray-800 flex items-center">
+                                    <div class="w-6 h-6 rounded-lg bg-yellow-100 flex items-center justify-center mr-2">
+                                        <i class="fas fa-clock text-yellow-600 text-xs"></i>
+                                    </div>
+                                    Delay (seconds):
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="shareDelay" 
+                                    placeholder="1" 
+                                    min="1"
+                                    max="60"
+                                    class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-300"
+                                >
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-500 flex items-center bg-purple-50 p-2 rounded">
+                            <i class="fas fa-info-circle mr-2 text-purple-500"></i> 
+                            <span>Post will be shared multiple times with delay between shares</span>
+                        </div>
+                        <div class="text-xs text-green-600 font-bold flex items-center justify-center bg-green-50 p-2 rounded border border-green-200">
+                            <i class="fas fa-bolt mr-2 text-green-500"></i>
+                            <span>Auto-share to multiple accounts!</span>
+                        </div>
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-chart-line text-purple-500 mr-2"></i>
+                                Benefits:
+                            </h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li class="flex items-start">
+                                    <i class="fas fa-rocket text-purple-500 mr-2 mt-0.5"></i>
+                                    <span>Increase post visibility and reach</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-users text-purple-500 mr-2 mt-0.5"></i>
+                                    <span>Reach new audiences automatically</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-shield-alt text-purple-500 mr-2 mt-0.5"></i>
+                                    <span>Safe and undetectable sharing</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="createAccountContent" class="tab-content">
+                <div class="space-y-6">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fas fa-user-plus text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Create Facebook Account</h3>
+                        <p class="text-sm text-gray-600">Create new Facebook account automatically</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label for="firstName" class="block text-sm font-bold text-gray-800 flex items-center">
+                                    <div class="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center mr-2">
+                                        <i class="fas fa-user text-blue-600 text-xs"></i>
+                                    </div>
+                                    First Name:
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="firstName" 
+                                    placeholder="First Name" 
+                                    class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                                >
+                            </div>
+                            <div class="space-y-2">
+                                <label for="lastName" class="block text-sm font-bold text-gray-800 flex items-center">
+                                    <div class="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center mr-2">
+                                        <i class="fas fa-user text-blue-600 text-xs"></i>
+                                    </div>
+                                    Last Name:
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="lastName" 
+                                    placeholder="Last Name" 
+                                    class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                                >
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="gender" class="block text-sm font-bold text-gray-800 flex items-center">
+                                <div class="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center mr-2">
+                                    <i class="fas fa-venus-mars text-purple-600 text-xs"></i>
+                                </div>
+                                Gender:
+                            </label>
+                            <select 
+                                id="gender" 
+                                class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
+                            >
+                                <option value="" selected disabled>Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="birthDate" class="block text-sm font-bold text-gray-800 flex items-center">
+                                <div class="w-6 h-6 rounded-lg bg-green-100 flex items-center justify-center mr-2">
+                                    <i class="fas fa-birthday-cake text-green-600 text-xs"></i>
+                                </div>
+                                Date of Birth:
+                            </label>
+                            <input 
+                                type="date" 
+                                id="birthDate" 
+                                class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300"
+                            >
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-gray-800 flex items-center">
+                                <div class="w-6 h-6 rounded-lg bg-yellow-100 flex items-center justify-center mr-2">
+                                    <i class="fas fa-image text-yellow-600 text-xs"></i>
+                                </div>
+                                Profile Picture (optional):
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500 transition-colors duration-300 cursor-pointer" id="profilePictureDrop">
+                                <div class="flex flex-col items-center justify-center">
+                                    <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                                    <p class="text-sm text-gray-600">Drag & drop or click to upload</p>
+                                    <p class="text-xs text-gray-500 mt-1">Max size: 5MB (JPG, PNG)</p>
+                                </div>
+                            </div>
+                            <input type="file" id="profilePictureInput" class="hidden" accept="image/*">
+                        </div>
+                        <div class="text-xs text-gray-500 flex items-center bg-orange-50 p-2 rounded">
+                            <i class="fas fa-info-circle mr-2 text-orange-500"></i> 
+                            <span>All information will be used to create a Facebook account</span>
+                        </div>
+                        <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-3 rounded-lg border border-orange-200">
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-shield-alt text-orange-500 mr-2"></i>
+                                Privacy & Security:
+                            </h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li class="flex items-start">
+                                    <i class="fas fa-lock text-orange-500 mr-2 mt-0.5"></i>
+                                    <span>Secure account creation process</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-user-secret text-orange-500 mr-2 mt-0.5"></i>
+                                    <span>Randomized credentials for security</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-orange-500 mr-2 mt-0.5"></i>
+                                    <span>100% undetectable by Facebook</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-6">
+                <button 
+                    id="boostButton" 
+                    class="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center"
+                >
+                    <i class="fas fa-bolt mr-2"></i>
+                    <span id="boostButtonText">Boost Reactions Now</span>
+                </button>
+            </div>
+        </main>
+        <div class="mt-8 p-6 border-t border-gray-100 text-center">
+            <p class="text-xs text-gray-400 font-medium">Developed by <span class="text-gray-600 font-semibold">JL Magno</span></p>
+            <p class="text-xs text-gray-500 mt-1">Boostify © 2025 - All Rights Reserved</p>
+        </div>
+    </div>
+    
+    <div id="prankSection" class="hidden w-full h-screen relative z-10 flex items-center justify-center">
+        <button 
+            id="backButton" 
+            class="absolute top-4 left-4 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 z-20"
+        >
+            <i class="fas fa-arrow-left mr-2"></i>Back
+        </button>
+        <div class="w-full h-full flex items-center justify-center p-4">
+            <div class="max-w-5xl w-full h-full flex items-center justify-center">
+                <img 
+                    id="prankImage" 
+                    src="prank.jpg" 
+                    alt="Prank Image" 
+                    class="max-w-full max-h-full object-contain rounded-2xl"
+                    onerror="this.src='https://i.imgur.com/vVKp0PS.jpg'"
+                >
+            </div>
+        </div>
+    </div>
+
+    <audio id="prankAudio" autoplay loop>
+        <source src="1rwnCgd.mp3" type="audio/mp3">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reactions = [
+                { 
+                    type: 'LIKE', 
+                    icon: 'fa-thumbs-up', 
+                    color: 'text-blue-600', 
+                    bgColor: 'bg-blue-50', 
+                    borderColor: 'border-blue-200'
+                },
+                { 
+                    type: 'LOVE', 
+                    icon: 'fa-heart', 
+                    color: 'text-red-600', 
+                    bgColor: 'bg-red-50', 
+                    borderColor: 'border-red-200'
+                },
+                { 
+                    type: 'HAHA', 
+                    icon: 'fa-laugh', 
+                    color: 'text-yellow-600', 
+                    bgColor: 'bg-yellow-50', 
+                    borderColor: 'border-yellow-200'
+                },
+                { 
+                    type: 'WOW', 
+                    icon: 'fa-surprise', 
+                    color: 'text-yellow-600', 
+                    bgColor: 'bg-yellow-50', 
+                    borderColor: 'border-yellow-200'
+                },
+                { 
+                    type: 'SAD', 
+                    icon: 'fa-sad-tear', 
+                    color: 'text-yellow-600', 
+                    bgColor: 'bg-yellow-50', 
+                    borderColor: 'border-yellow-200'
+                },
+                { 
+                    type: 'ANGRY', 
+                    icon: 'fa-angry', 
+                    color: 'text-red-600', 
+                    bgColor: 'bg-red-50', 
+                    borderColor: 'border-red-200'
+                }
+            ];
+            
+            let selectedReaction = null;
+            let currentTab = 'autoReact';
+            let isMenuOpen = false;
+            
+            const mainApp = document.getElementById('mainApp');
+            const prankSection = document.getElementById('prankSection');
+            const reactionContainer = document.getElementById('reactionContainer');
+            const boostButton = document.getElementById('boostButton');
+            const boostButtonText = document.getElementById('boostButtonText');
+            const postUrlInput = document.getElementById('postUrl');
+            const followerUrlInput = document.getElementById('followerUrl');
+            const shareUrlInput = document.getElementById('shareUrl');
+            const shareAmountInput = document.getElementById('shareAmount');
+            const shareDelayInput = document.getElementById('shareDelay');
+            const currentDateElement = document.getElementById('currentDate');
+            const currentTimeElement = document.getElementById('currentTime');
+            const prankAudio = document.getElementById('prankAudio');
+            const backButton = document.getElementById('backButton');
+            const menuButton = document.getElementById('menuButton');
+            const menuDropdown = document.getElementById('menuDropdown');
+            const dropdownAutoReact = document.getElementById('dropdownAutoReact');
+            const dropdownAutoFollower = document.getElementById('dropdownAutoFollower');
+            const dropdownAutoShare = document.getElementById('dropdownAutoShare');
+            const dropdownCreateAccount = document.getElementById('dropdownCreateAccount');
+            const autoReactContent = document.getElementById('autoReactContent');
+            const autoFollowerContent = document.getElementById('autoFollowerContent');
+            const autoShareContent = document.getElementById('autoShareContent');
+            const createAccountContent = document.getElementById('createAccountContent');
+            const firstNameInput = document.getElementById('firstName');
+            const lastNameInput = document.getElementById('lastName');
+            const genderSelect = document.getElementById('gender');
+            const birthDateInput = document.getElementById('birthDate');
+            const profilePictureDrop = document.getElementById('profilePictureDrop');
+            const profilePictureInput = document.getElementById('profilePictureInput');
+            
+            function initApp() {
+                createReactionButtons();
+                setupEventListeners();
+                initializeDateTime();
+                updateBoostButtonText();
+                document.addEventListener('click', closeMenuOnClickOutside);
+                const today = new Date();
+                birthDateInput.value = today.toISOString().split('T')[0];
+            }
+            
+            function createReactionButtons() {
+                reactions.forEach(reaction => {
+                    const button = document.createElement('button');
+                    button.className = `flex flex-col items-center justify-center p-3 rounded-lg ${reaction.bgColor} border ${reaction.borderColor} hover:border-blue-500 hover:scale-105 hover:shadow transition-all duration-300`;
+                    button.setAttribute('data-type', reaction.type);
+                    button.setAttribute('title', reaction.type);
+                    button.setAttribute('aria-label', `Select ${reaction.type} reaction`);
+                    button.innerHTML = `
+                        <i class="fas ${reaction.icon} ${reaction.color} text-lg mb-1"></i>
+                        <span class="text-xs font-bold text-gray-700">${reaction.type}</span>
+                    `;
+                    button.addEventListener('click', () => selectReaction(reaction.type));
+                    reactionContainer.appendChild(button);
+                });
+            }
+            
+            function setupEventListeners() {
+                boostButton.addEventListener('click', startBoostProcess);
+                postUrlInput.addEventListener('blur', () => validateFacebookUrl(postUrlInput));
+                postUrlInput.addEventListener('input', () => clearPlaceholderError(postUrlInput));
+                followerUrlInput.addEventListener('blur', () => validateFacebookUrl(followerUrlInput));
+                shareUrlInput.addEventListener('blur', () => validateFacebookUrl(shareUrlInput));
+                if (backButton) {
+                    backButton.addEventListener('click', goBackToApp);
+                }
+                menuButton.addEventListener('click', toggleMenu);
+                dropdownAutoReact.addEventListener('click', () => switchTab('autoReact'));
+                dropdownAutoFollower.addEventListener('click', () => switchTab('autoFollower'));
+                dropdownAutoShare.addEventListener('click', () => switchTab('autoShare'));
+                dropdownCreateAccount.addEventListener('click', () => switchTab('createAccount'));
+                profilePictureDrop.addEventListener('click', () => profilePictureInput.click());
+                profilePictureDrop.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    profilePictureDrop.classList.add('border-blue-500', 'bg-blue-50');
+                });
+                profilePictureDrop.addEventListener('dragleave', () => {
+                    profilePictureDrop.classList.remove('border-blue-500', 'bg-blue-50');
+                });
+                profilePictureDrop.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    profilePictureDrop.classList.remove('border-blue-500', 'bg-blue-50');
+                    if (e.dataTransfer.files.length) {
+                        profilePictureInput.files = e.dataTransfer.files;
+                        updateProfilePicturePreview();
+                    }
+                });
+                profilePictureInput.addEventListener('change', updateProfilePicturePreview);
+            }
+            
+            function updateProfilePicturePreview() {
+                if (profilePictureInput.files && profilePictureInput.files[0]) {
+                    const file = profilePictureInput.files[0];
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size exceeds 5MB limit');
+                        profilePictureInput.value = '';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profilePictureDrop.innerHTML = `
+                            <div class="flex flex-col items-center justify-center">
+                                <img src="${e.target.result}" class="w-12 h-12 rounded-full object-cover mb-2 border-2 border-white shadow">
+                                <p class="text-xs text-gray-600 truncate max-w-full">${file.name}</p>
+                                <p class="text-xs text-gray-500 mt-1">Click to change</p>
+                            </div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            function initializeDateTime() {
+                updateDateTime();
+                setInterval(updateDateTime, 1000);
+            }
+            
+            function updateDateTime() {
+                const now = new Date();
+                const optionsDate = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                const formattedDate = now.toLocaleDateString('en-US', optionsDate);
+                currentDateElement.textContent = formattedDate;
+                const optionsTime = { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit', 
+                    hour12: true 
+                };
+                const formattedTime = now.toLocaleTimeString('en-US', optionsTime);
+                currentTimeElement.textContent = formattedTime;
+            }
+            
+            function toggleMenu(event) {
+                event.stopPropagation();
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    menuDropdown.classList.remove('hidden');
+                    menuButton.innerHTML = '<i class="fas fa-times text-lg text-white"></i>';
+                    menuButton.classList.remove('from-blue-500', 'to-blue-700');
+                    menuButton.classList.add('from-red-500', 'to-red-700');
+                } else {
+                    menuDropdown.classList.add('hidden');
+                    menuButton.innerHTML = '<i class="fas fa-bars text-lg text-white"></i>';
+                    menuButton.classList.remove('from-red-500', 'to-red-700');
+                    menuButton.classList.add('from-blue-500', 'to-blue-700');
+                }
+            }
+            
+            function closeMenuOnClickOutside(event) {
+                if (!menuButton.contains(event.target) && !menuDropdown.contains(event.target)) {
+                    if (isMenuOpen) {
+                        isMenuOpen = false;
+                        menuDropdown.classList.add('hidden');
+                        menuButton.innerHTML = '<i class="fas fa-bars text-lg text-white"></i>';
+                        menuButton.classList.remove('from-red-500', 'to-red-700');
+                        menuButton.classList.add('from-blue-500', 'to-blue-700');
+                    }
+                }
+            }
+            
+            function switchTab(tabName) {
+                currentTab = tabName;
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                if (tabName === 'autoReact') {
+                    autoReactContent.classList.add('active');
+                } else if (tabName === 'autoFollower') {
+                    autoFollowerContent.classList.add('active');
+                } else if (tabName === 'autoShare') {
+                    autoShareContent.classList.add('active');
+                } else if (tabName === 'createAccount') {
+                    createAccountContent.classList.add('active');
+                }
+                updateBoostButtonText();
+                if (isMenuOpen) {
+                    toggleMenu(new Event('click'));
+                }
+            }
+            
+            function updateBoostButtonText() {
+                if (currentTab === 'autoReact') {
+                    boostButtonText.textContent = 'Auto Reaction Now';
+                    boostButton.className = boostButton.className.replace(/from-[\w-]+ to-[\w-]+/g, 'from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700');
+                } else if (currentTab === 'autoFollower') {
+                    boostButtonText.textContent = 'Auto Followers Now';
+                    boostButton.className = boostButton.className.replace(/from-[\w-]+ to-[\w-]+/g, 'from-green-600 to-purple-600 hover:from-green-700 hover:to-purple-700');
+                } else if (currentTab === 'autoShare') {
+                    boostButtonText.textContent = 'Auto Share Now';
+                    boostButton.className = boostButton.className.replace(/from-[\w-]+ to-[\w-]+/g, 'from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700');
+                } else if (currentTab === 'createAccount') {
+                    boostButtonText.textContent = 'Create FB Account Now';
+                    boostButton.className = boostButton.className.replace(/from-[\w-]+ to-[\w-]+/g, 'from-orange-600 to-blue-600 hover:from-orange-700 hover:to-blue-700');
+                }
+            }
+            
+            function selectReaction(type) {
+                const allButtons = document.querySelectorAll('[data-type]');
+                allButtons.forEach(btn => {
+                    btn.classList.remove('border-blue-500', 'ring-1', 'ring-blue-200', 'scale-105');
+                });
+                const selectedBtn = document.querySelector(`[data-type="${type}"]`);
+                if (selectedBtn) {
+                    selectedBtn.classList.add('border-blue-500', 'ring-1', 'ring-blue-200', 'scale-105');
+                }
+                selectedReaction = type;
+            }
+            
+            function validateFacebookUrl(inputElement) {
+                const url = inputElement.value.trim();
+                if (url && !isFacebookUrl(url)) {
+                    showUrlError(inputElement);
+                    return false;
+                }
+                return true;
+            }
+            
+            function isFacebookUrl(url) {
+                return url.includes('facebook.com') || url.includes('fb.com');
+            }
+            
+            function showUrlError(inputElement) {
+                inputElement.classList.add('animate-shake', 'border-red-300');
+                inputElement.value = '';
+                inputElement.placeholder = 'Please enter a valid Facebook URL';
+                setTimeout(() => {
+                    inputElement.classList.remove('animate-shake', 'border-red-300');
+                }, 800);
+            }
+            
+            function clearPlaceholderError(inputElement) {
+                if (inputElement.placeholder === 'Please enter a valid Facebook URL' || 
+                    inputElement.placeholder === 'Please enter a Facebook URL') {
+                    inputElement.placeholder = inputElement.id === 'postUrl' 
+                        ? 'https://facebook.com/your-post' 
+                        : 'https://facebook.com/profile-name';
+                }
+            }
+            
+            function startBoostProcess() {
+                if (!validateCurrentTab()) return;
+                processBoost();
+            }
+            
+            function validateCurrentTab() {
+                if (currentTab === 'autoReact') {
+                    return validateAutoReact();
+                } else if (currentTab === 'autoFollower') {
+                    return validateAutoFollower();
+                } else if (currentTab === 'autoShare') {
+                    return validateAutoShare();
+                } else if (currentTab === 'createAccount') {
+                    return validateCreateAccount();
+                }
+                return false;
+            }
+            
+            function validateAutoReact() {
+                if (!postUrlInput.value.trim()) {
+                    showEmptyUrlError(postUrlInput, 'Please enter a Facebook URL');
+                    return false;
+                }
+                if (!validateFacebookUrl(postUrlInput)) {
+                    return false;
+                }
+                if (!selectedReaction) {
+                    highlightReactionButtons();
+                    return false;
+                }
+                return true;
+            }
+            
+            function validateAutoFollower() {
+                if (!followerUrlInput.value.trim()) {
+                    showEmptyUrlError(followerUrlInput, 'Please enter a Facebook profile URL');
+                    return false;
+                }
+                return validateFacebookUrl(followerUrlInput);
+            }
+            
+            function validateAutoShare() {
+                if (!shareUrlInput.value.trim()) {
+                    showEmptyUrlError(shareUrlInput, 'Please enter a Facebook post URL');
+                    return false;
+                }
+                if (!shareAmountInput.value.trim() || parseInt(shareAmountInput.value) < 1) {
+                    showInputError(shareAmountInput, 'Please enter a valid amount (1-100)');
+                    return false;
+                }
+                if (!shareDelayInput.value.trim() || parseInt(shareDelayInput.value) < 1) {
+                    showInputError(shareDelayInput, 'Please enter a valid delay (1-60 seconds)');
+                    return false;
+                }
+                return validateFacebookUrl(shareUrlInput);
+            }
+            
+            function validateCreateAccount() {
+                if (!firstNameInput.value.trim()) {
+                    showInputError(firstNameInput, 'Please enter first name');
+                    return false;
+                }
+                if (!lastNameInput.value.trim()) {
+                    showInputError(lastNameInput, 'Please enter last name');
+                    return false;
+                }
+                if (!genderSelect.value) {
+                    genderSelect.classList.add('animate-shake', 'border-red-300');
+                    setTimeout(() => {
+                        genderSelect.classList.remove('animate-shake', 'border-red-300');
+                    }, 800);
+                    return false;
+                }
+                if (!birthDateInput.value) {
+                    showInputError(birthDateInput, 'Please select date of birth');
+                    return false;
+                }
+                return true;
+            }
+            
+            function showEmptyUrlError(inputElement, message) {
+                const originalPlaceholder = inputElement.placeholder;
+                inputElement.placeholder = message;
+                inputElement.classList.add('animate-shake', 'border-red-300');
+                inputElement.focus();
+                setTimeout(() => {
+                    inputElement.classList.remove('animate-shake', 'border-red-300');
+                    inputElement.placeholder = originalPlaceholder;
+                }, 800);
+            }
+            
+            function showInputError(inputElement, message) {
+                const originalPlaceholder = inputElement.placeholder || '';
+                inputElement.placeholder = message;
+                inputElement.classList.add('animate-shake', 'border-red-300');
+                inputElement.focus();
+                setTimeout(() => {
+                    inputElement.classList.remove('animate-shake', 'border-red-300');
+                    if (originalPlaceholder) {
+                        inputElement.placeholder = originalPlaceholder;
+                    }
+                }, 800);
+            }
+            
+            function highlightReactionButtons() {
+                const allButtons = document.querySelectorAll('[data-type]');
+                allButtons.forEach(btn => {
+                    btn.classList.add('animate-pulse', 'border-red-300');
+                });
+                setTimeout(() => {
+                    allButtons.forEach(btn => {
+                        btn.classList.remove('animate-pulse', 'border-red-300');
+                    });
+                }, 1500);
+            }
+            
+            function processBoost() {
+                setBoostButtonLoading();
+                setTimeout(() => {
+                    completeBoost();
+                }, 2500);
+            }
+            
+            function setBoostButtonLoading() {
+                boostButton.disabled = true;
+                boostButton.innerHTML = `
+                    <i class="fas fa-cog animate-spin mr-2"></i>
+                    <span>Processing ${getBoostTypeText()}...</span>
+                `;
+                boostButton.classList.remove('hover:-translate-y-0.5', 'hover:shadow-xl');
+                boostButton.classList.add('opacity-70', 'cursor-not-allowed');
+            }
+            
+            function getBoostTypeText() {
+                if (currentTab === 'autoReact') return 'Reaction Boost';
+                if (currentTab === 'autoFollower') return 'Follower Boost';
+                if (currentTab === 'autoShare') return 'Share Boost';
+                if (currentTab === 'createAccount') return 'Account Creation';
+                return 'Boost';
+            }
+            
+            function resetBoostButton() {
+                boostButton.disabled = false;
+                boostButton.innerHTML = `
+                    <i class="fas fa-bolt mr-2"></i>
+                    <span id="boostButtonText">${boostButtonText.textContent}</span>
+                `;
+                boostButton.classList.add('hover:-translate-y-0.5', 'hover:shadow-xl');
+                boostButton.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+            
+            function completeBoost() {
+                showPrankSection();
+                resetBoostButton();
+                playPrankAudio();
+            }
+            
+            function showPrankSection() {
+                mainApp.classList.add('hidden');
+                prankSection.classList.remove('hidden');
+            }
+            
+            function playPrankAudio() {
+                setTimeout(() => {
+                    prankAudio.play().catch(error => {
+                        console.log('Audio autoplay was prevented by browser:', error);
+                    });
+                }, 500);
+            }
+            
+            function goBackToApp() {
+                prankSection.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                prankAudio.pause();
+                prankAudio.currentTime = 0;
+                resetCurrentTabForm();
+            }
+            
+            function resetCurrentTabForm() {
+                if (currentTab === 'autoReact') {
+                    postUrlInput.value = '';
+                    selectedReaction = null;
+                    const allButtons = document.querySelectorAll('[data-type]');
+                    allButtons.forEach(btn => {
+                        btn.classList.remove('border-blue-500', 'ring-1', 'ring-blue-200', 'scale-105');
+                    });
+                } else if (currentTab === 'autoFollower') {
+                    followerUrlInput.value = '';
+                } else if (currentTab === 'autoShare') {
+                    shareUrlInput.value = '';
+                    shareAmountInput.value = '';
+                    shareDelayInput.value = '';
+                } else if (currentTab === 'createAccount') {
+                    firstNameInput.value = '';
+                    lastNameInput.value = '';
+                    genderSelect.value = '';
+                    birthDateInput.value = '';
+                    profilePictureInput.value = '';
+                    profilePictureDrop.innerHTML = `
+                        <div class="flex flex-col items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                            <p class="text-sm text-gray-600">Drag & drop or click to upload</p>
+                            <p class="text-xs text-gray-500 mt-1">Max size: 5MB (JPG, PNG)</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            initApp();
+        });
+    </script>
+</body>
+</html>
